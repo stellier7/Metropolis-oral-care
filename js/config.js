@@ -69,10 +69,8 @@ const config = {
     accentColor: "#9AA4B2",
     primaryDark: "",
     softBg: "",
-    // TODO: Add logo — drop PNG/SVG at assets/images/logo.png and set path below
-    logoUrl: "",
-    // TODO: Add hero photo — drop image at assets/images/hero.jpg (placeholder path kept for now)
-    heroImageUrl: "assets/images/hero.jpg",
+    logoUrl: "assets/images/logo.jpeg",
+    heroImageUrl: "assets/images/hero.jpeg",
   },
 
   // ---------------------------------------------------------------------------
@@ -253,8 +251,7 @@ const config = {
         en: "Doctor of Dental Surgery from UNAH (Honduras) with a specialty in Endodontics from IYK (Mexico). He practices in Tegucigalpa, Santa Rosa de Copán, and Mexico City, combining cutting-edge technology with a personalized approach for every patient.",
         es: "Doctor en Cirugía Dental por la UNAH (Honduras) con especialidad en Endodoncia por el IYK (México). Atiende en Tegucigalpa, Santa Rosa de Copán y Ciudad de México, combinando tecnología de vanguardia con un enfoque personalizado para cada paciente.",
       },
-      // TODO: Add doctor photo — drop image at assets/images/dentist.jpg (placeholder path kept for now)
-      photoUrl: "assets/images/dentist.jpg",
+      photoUrl: "assets/images/Dentist.jpeg",
     },
   ],
 
@@ -339,7 +336,6 @@ const config = {
 
   // ---------------------------------------------------------------------------
   // SMILE GALLERY — empty array hides the section
-  // TODO: Add gallery photos under assets/images/gallery/ and list paths here
   // ---------------------------------------------------------------------------
   gallery: [],
 

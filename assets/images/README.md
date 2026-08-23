@@ -1,37 +1,17 @@
 # Images — Metrópolis Oral Care
 
-Drop client media here and reference paths from `js/config.js`.
+Client media referenced from `js/config.js`.
 
-## Required before go-live
-
-| File | Used for | Status |
-| --- | --- | --- |
-| `logo.png` (or `.svg`) | Header/footer logo (`branding.logoUrl`) | **Missing — add later** |
-| `hero.jpg` | Hero background (`branding.heroImageUrl`) | Placeholder in use |
-| `dentist.jpg` | Dr. Marco Josué Pérez photo (`dentists[].photoUrl`) | Placeholder in use |
-
-## Optional (sections hidden until added)
-
-| Path | Used for |
-| --- | --- |
-| `gallery/*.jpg` | Smile gallery (`gallery[]` — currently empty) |
-
-## Included
+## In use
 
 | File | Used for |
 | --- | --- |
+| `logo.jpeg` | Header logo, favicon, Open Graph / Twitter card image |
+| `hero.jpeg` | Hero background (`branding.heroImageUrl`) |
+| `Dentist.jpeg` | Dr. Marco Josué Pérez photo (`dentists[].photoUrl`) |
 | `financing/Bac.png` | BAC Credomatic (`financingImages[0]`) |
 | `financing/Ficohsa.png` | Ficohsa (`financingImages[1]`) |
 
-## Directory layout
+## Gallery
 
-```
-assets/images/
-  logo.png              ← TODO: practice logo
-  hero.jpg              ← TODO: replace placeholder
-  dentist.jpg           ← TODO: Dr. Marco Josué Pérez photo
-  gallery/              ← TODO: add smile gallery photos when ready
-  financing/
-    Bac.png             ✓ included
-    Ficohsa.png         ✓ included
-```
+The smile gallery section is hidden until you add photos under `assets/images/gallery/` and list their paths in `config.js` → `gallery[]`.

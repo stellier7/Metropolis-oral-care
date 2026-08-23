@@ -19,9 +19,9 @@ Drop client images here:
 
 ```
 assets/images/
-  logo.png              ← branding.logoUrl (optional)
-  hero.jpg              ← branding.heroImageUrl
-  dentist.jpg           ← dentists[].photoUrl
-  gallery/              ← gallery[] (when ready)
+  logo.jpeg              ← branding.logoUrl + favicon + social preview
+  hero.jpeg              ← branding.heroImageUrl
+  Dentist.jpeg           ← dentists[].photoUrl
+  gallery/               ← add photos when ready for gallery section
   financing/            ← financingImages[] (BAC + Ficohsa included)
 ```
