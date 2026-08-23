@@ -221,6 +221,8 @@ const config = {
         directions: "Cómo Llegar",
         mapInteract: "Toca para interactuar con el mapa",
         closed: "Cerrado",
+        previous: "Ubicación anterior",
+        next: "Siguiente ubicación",
         days: {
           mon: "Lunes",
           tue: "Martes",
