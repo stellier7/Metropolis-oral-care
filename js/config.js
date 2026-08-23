@@ -36,6 +36,7 @@ const config = {
     phoneTel: "50488237678",
 
     address: {
+      label: { en: "Tegucigalpa", es: "Tegucigalpa" },
       street: "Torre Metrópolis #2, Blvd. Suyapa",
       city: "Tegucigalpa",
       state: "Honduras",
@@ -43,6 +44,22 @@ const config = {
       mapsLink: "https://maps.app.goo.gl/UbzAtzG2LjZLF6Qt6",
       mapsQuery: "Torre Metrópolis #2, Blvd. Suyapa, Tegucigalpa, Honduras",
     },
+
+    // OPTIONAL — extra offices shown in Visítanos (each entry supports the same address fields as `address`)
+    additionalLocations: [
+      {
+        label: { en: "Santa Rosa de Copán", es: "Santa Rosa de Copán" },
+        city: "Santa Rosa de Copán",
+        state: "Copán, Honduras",
+        mapsQuery: "Santa Rosa de Copán, Copán, Honduras",
+      },
+      {
+        label: { en: "Mexico City", es: "Ciudad de México" },
+        city: "Ciudad de México",
+        state: "México",
+        mapsQuery: "Ciudad de México, México",
+      },
+    ],
 
     hours: {
       mon: "7:00 AM – 9:00 PM",
@@ -111,7 +128,7 @@ const config = {
         financing: "Financing",
         financingLead: "Flexible payment options to fit your budget.",
         location: "Visit Us",
-        locationLead: "Torre Metrópolis, Tegucigalpa — we look forward to seeing you.",
+        locationLead: "Tegucigalpa, Santa Rosa de Copán, and Mexico City — we look forward to seeing you.",
       },
       services: {
         expand: "Learn more",
@@ -190,7 +207,7 @@ const config = {
         financing: "Financiamiento",
         financingLead: "Opciones de pago flexibles que se adaptan a tu presupuesto.",
         location: "Visítanos",
-        locationLead: "Torre Metrópolis, Tegucigalpa — te esperamos con gusto.",
+        locationLead: "Tegucigalpa, Santa Rosa de Copán y Ciudad de México — te esperamos con gusto.",
       },
       services: {
         expand: "Ver más",

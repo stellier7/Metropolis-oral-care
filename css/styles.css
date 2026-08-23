@@ -1407,11 +1407,30 @@ body.gallery-lightbox-open {
 /* ---------------------------------------------------------------------------
    Location
    --------------------------------------------------------------------------- */
+.location__list {
+  display: grid;
+  gap: 1.25rem;
+}
+
 .location__card {
   display: grid;
   gap: 0;
   overflow: hidden;
   padding: 0;
+}
+
+.location__office {
+  margin: 0;
+  padding: 1.1rem 1.25rem 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+
+.location__card-body {
+  display: grid;
+  gap: 0;
 }
 
 .location__map {
@@ -1497,7 +1516,11 @@ body.gallery-lightbox-open {
 }
 
 @media (min-width: 900px) {
-  .location__card {
+  .location__list {
+    gap: 1.5rem;
+  }
+
+  .location__card-body {
     grid-template-columns: 1.15fr 1fr;
     min-height: 360px;
   }

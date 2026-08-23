@@ -1187,59 +1187,112 @@
     return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
   }
 
+  function formatAddress(addr) {
+    if (!addr) return "";
+    return [addr.street, addr.city, addr.state, addr.zip].filter(Boolean).join(", ");
+  }
+
+  function getLocationEntries() {
+    const entries = [];
+    const main = cfg.practice.address;
+    const mainAddress = formatAddress(main);
+
+    if (mainAddress) {
+      entries.push({
+        label: main?.label,
+        address: main,
+        showHours: true,
+      });
+    }
+
+    const extras = Array.isArray(cfg.practice.additionalLocations)
+      ? cfg.practice.additionalLocations
+      : [];
+
+    extras.forEach((entry) => {
+      const address = entry.address || entry;
+      const fullAddress = formatAddress(address);
+      if (!fullAddress) return;
+
+      entries.push({
+        label: entry.label || address.label,
+        address,
+        showHours: false,
+      });
+    });
+
+    return entries;
+  }
+
+  function renderLocationCard(entry, index) {
+    const fullAddress = formatAddress(entry.address);
+    const { embed: mapsEmbed, link: mapsLink } = buildMapsUrls(entry.address, fullAddress);
+    const label = localized(entry.label);
+    const mapTitle = label
+      ? `${cfg.practice.name} — ${label}`
+      : cfg.practice.name;
+
+    const hoursRows = entry.showHours
+      ? DAY_ORDER.map((day) => {
+          const value = cfg.practice.hours?.[day];
+          const dayLabel = t(`location.days.${day}`);
+          if (!value) return "";
+          return `<li><span>${escapeHtml(dayLabel)}</span><span>${escapeHtml(value)}</span></li>`;
+        }).join("")
+      : "";
+
+    const hoursBlock = entry.showHours
+      ? `<h3 class="location__hours-title">${escapeHtml(t("location.hours"))}</h3>
+         <ul class="location__hours">${hoursRows}</ul>`
+      : "";
+
+    return `
+      <article class="location__card card">
+        ${label ? `<h3 class="location__office">${escapeHtml(label)}</h3>` : ""}
+        <div class="location__card-body">
+          <div class="location__map">
+            <button
+              type="button"
+              class="location__map-shield"
+              aria-label="${escapeAttr(t("location.mapInteract"))}"
+            ></button>
+            <iframe
+              title="${escapeAttr(mapTitle)}"
+              src="${escapeAttr(mapsEmbed)}"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="location__details">
+            <address class="location__address">${escapeHtml(fullAddress)}</address>
+            ${hoursBlock}
+            <div class="location__actions">
+              <a class="btn btn--primary" href="${whatsappHref(lang === 'es' ? 'Hola, tengo una pregunta' : 'Hello, I have a question')}" target="_blank" rel="noopener noreferrer">${escapeHtml(t("location.call"))}</a>
+              <a class="btn btn--secondary" href="${escapeAttr(mapsLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+                t("location.directions")
+              )}</a>
+            </div>
+          </div>
+        </div>
+      </article>`;
+  }
+
   function renderLocation() {
     const section = document.querySelector('[data-section="location"]');
-    const card = document.querySelector("[data-location-card]");
-    if (!section || !card) return;
+    const list = document.querySelector("[data-location-list]");
+    if (!section || !list) return;
 
-    const addr = cfg.practice.address || {};
-    const fullAddress = [addr.street, addr.city, addr.state, addr.zip].filter(Boolean).join(", ");
-    if (!fullAddress && !cfg.practice.phone) {
+    const entries = getLocationEntries();
+    if (!entries.length && !cfg.practice.phone) {
       section.hidden = true;
       return;
     }
 
     section.hidden = false;
-    const { embed: mapsEmbed, link: mapsLink } = buildMapsUrls(addr, fullAddress);
+    list.innerHTML = entries.map((entry, index) => renderLocationCard(entry, index)).join("");
 
-    const hoursRows = DAY_ORDER.map((day) => {
-      const value = cfg.practice.hours?.[day];
-      const label = t(`location.days.${day}`);
-      const display = value ? value : t("location.closed");
-      // Skip days with empty string AND we still show closed — task says empty to omit;
-      // interpret empty as omit from list for cleaner UX
-      if (!value) return "";
-      return `<li><span>${escapeHtml(label)}</span><span>${escapeHtml(display)}</span></li>`;
-    }).join("");
-
-    card.innerHTML = `
-      <div class="location__map">
-        <button
-          type="button"
-          class="location__map-shield"
-          aria-label="${escapeAttr(t("location.mapInteract"))}"
-        ></button>
-        <iframe
-          title="${escapeAttr(cfg.practice.name)}"
-          src="${escapeAttr(mapsEmbed)}"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          allowfullscreen
-        ></iframe>
-      </div>
-      <div class="location__details">
-        <address class="location__address">${escapeHtml(fullAddress)}</address>
-        <h3 class="location__hours-title">${escapeHtml(t("location.hours"))}</h3>
-        <ul class="location__hours">${hoursRows}</ul>
-        <div class="location__actions">
-          <a class="btn btn--primary" href="${whatsappHref(lang === 'es' ? 'Hola, tengo una pregunta' : 'Hello, I have a question')}" target="_blank" rel="noopener noreferrer">${escapeHtml(t("location.call"))}</a>
-          <a class="btn btn--secondary" href="${escapeAttr(mapsLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
-            t("location.directions")
-          )}</a>
-        </div>
-      </div>`;
-
-    bindMapScrollShield(card.querySelector(".location__map"));
+    list.querySelectorAll(".location__map").forEach((map) => bindMapScrollShield(map));
   }
 
   // -------------------------------------------------------------------------
@@ -1331,7 +1384,7 @@
       case "financing":
         return Array.isArray(cfg.financingImages) && cfg.financingImages.length > 0;
       case "location":
-        return Boolean(cfg.practice.address?.street || cfg.practice.phone);
+        return getLocationEntries().length > 0 || Boolean(cfg.practice.phone);
       default:
         return true;
     }
@@ -1842,12 +1895,11 @@
 
   // LOCATION - Fade up
   function setupLocationAnimations() {
-    const locationCard = document.querySelector('.location__card');
-    if (locationCard) {
-      locationCard.setAttribute('data-animate', 'slide-up');
-      locationCard.setAttribute('data-anim-label', 'location-card');
+    document.querySelectorAll(".location__card").forEach((locationCard, index) => {
+      locationCard.setAttribute("data-animate", "slide-up");
+      locationCard.setAttribute("data-anim-label", `location-card-${index + 1}`);
       animationObserver.observe(locationCard);
-    }
+    });
   }
 
   // SECTION HEADERS - Fade up
