@@ -1224,7 +1224,8 @@
     return entries;
   }
 
-  function renderLocationCard(entry, index) {
+  function renderLocationCard(entry, options = {}) {
+    const { hideOfficeTitle = false } = options;
     const fullAddress = formatAddress(entry.address);
     const { embed: mapsEmbed, link: mapsLink } = buildMapsUrls(entry.address, fullAddress);
     const label = localized(entry.label);
@@ -1248,7 +1249,7 @@
 
     return `
       <article class="location__card card">
-        ${label ? `<h3 class="location__office">${escapeHtml(label)}</h3>` : ""}
+        ${label && !hideOfficeTitle ? `<h3 class="location__office">${escapeHtml(label)}</h3>` : ""}
         <div class="location__card-body">
           <div class="location__map">
             <button
@@ -1280,8 +1281,15 @@
 
   function renderLocation() {
     const section = document.querySelector('[data-section="location"]');
-    const list = document.querySelector("[data-location-list]");
-    if (!section || !list) return;
+    const carousel = document.querySelector("[data-location-carousel]");
+    const viewport = document.querySelector("[data-location-viewport]");
+    const track = document.querySelector("[data-location-track]");
+    const tabs = document.querySelector("[data-location-tabs]");
+    const nav = document.querySelector("[data-location-nav]");
+    if (!section || !carousel || !viewport || !track) return;
+
+    viewport._locationEmblaApi?.destroy?.();
+    viewport._locationEmblaApi = null;
 
     const entries = getLocationEntries();
     if (!entries.length && !cfg.practice.phone) {
@@ -1290,9 +1298,106 @@
     }
 
     section.hidden = false;
-    list.innerHTML = entries.map((entry, index) => renderLocationCard(entry, index)).join("");
 
-    list.querySelectorAll(".location__map").forEach((map) => bindMapScrollShield(map));
+    const isCarousel = entries.length > 1;
+    carousel.classList.toggle("location__carousel--active", isCarousel);
+    viewport.toggleAttribute("data-embla", isCarousel);
+    if (tabs) tabs.hidden = !isCarousel;
+    if (nav) nav.hidden = !isCarousel;
+
+    track.innerHTML = entries
+      .map((entry) => renderLocationCard(entry, { hideOfficeTitle: isCarousel }))
+      .join("");
+
+    if (tabs && isCarousel) {
+      tabs.innerHTML = entries
+        .map((entry, index) => {
+          const label = localized(entry.label) || `${index + 1}`;
+          return `<button type="button" class="location__tab" data-location-tab="${index}" aria-label="${escapeAttr(
+            label
+          )}" ${index === 0 ? 'aria-current="true"' : ""}><span>${escapeHtml(label)}</span></button>`;
+        })
+        .join("");
+    } else if (tabs) {
+      tabs.innerHTML = "";
+    }
+
+    track.querySelectorAll(".location__map").forEach((map) => bindMapScrollShield(map));
+    initLocationCarousel(entries.length);
+  }
+
+  function syncLocationTabs(embla, entries) {
+    const tabs = document.querySelectorAll("[data-location-tab]");
+    if (!tabs.length || !embla) return;
+
+    const selected = embla.selectedScrollSnap();
+    const activeIndex = selected % entries.length;
+
+    tabs.forEach((tab, index) => {
+      if (index === activeIndex) tab.setAttribute("aria-current", "true");
+      else tab.removeAttribute("aria-current");
+    });
+  }
+
+  function initLocationCarousel(entryCount) {
+    const viewport = document.querySelector("[data-location-viewport]");
+    const section = document.querySelector('[data-section="location"]');
+    const tabs = document.querySelector("[data-location-tabs]");
+    if (!viewport || !section || !viewport.hasAttribute("data-embla") || entryCount <= 1) return;
+
+    const prevBtn = document.querySelector("[data-location-prev]");
+    const nextBtn = document.querySelector("[data-location-next]");
+    if (prevBtn) prevBtn.setAttribute("aria-label", t("location.previous"));
+    if (nextBtn) nextBtn.setAttribute("aria-label", t("location.next"));
+
+    const embla = initLoopEmblaSection({
+      viewport,
+      section,
+      startIndex: 0,
+      delay: 8000,
+      slideSelector: ".location__card",
+      label: "Location carousel",
+      apiKey: "_locationEmblaApi",
+      nav: prevBtn && nextBtn ? { prevBtn, nextBtn } : null,
+    });
+
+    if (!embla) return;
+
+    const autoplay = viewport._locationEmblaApi?.plugins?.()?.autoplay;
+    const entries = getLocationEntries();
+
+    const pauseAutoplay = () => autoplay?.stop();
+    const resumeAutoplay = () => {
+      if (prefersReducedMotion.matches) return;
+      autoplay?.play();
+    };
+
+    syncLocationTabs(embla, entries);
+    embla.on("select", () => syncLocationTabs(embla, entries));
+
+    tabs?.querySelectorAll("[data-location-tab]").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const index = Number(tab.getAttribute("data-location-tab"));
+        if (!Number.isFinite(index)) return;
+        embla.scrollTo(index);
+        pauseAutoplay();
+        window.setTimeout(resumeAutoplay, 12000);
+      });
+    });
+
+    section.querySelectorAll(".location__map-shield").forEach((shield) => {
+      shield.addEventListener("click", () => {
+        pauseAutoplay();
+        window.setTimeout(resumeAutoplay, 15000);
+      });
+    });
+
+    section.querySelectorAll(".location__actions a").forEach((link) => {
+      link.addEventListener("click", pauseAutoplay);
+    });
+
+    embla.on("pointerDown", pauseAutoplay);
+    embla.on("pointerUp", () => window.setTimeout(resumeAutoplay, 12000));
   }
 
   // -------------------------------------------------------------------------
@@ -1895,7 +2000,8 @@
 
   // LOCATION - Fade up
   function setupLocationAnimations() {
-    document.querySelectorAll(".location__card").forEach((locationCard, index) => {
+    document.querySelectorAll(".location__card:not([data-clone])").forEach((locationCard, index) => {
+      if (locationCard.closest(".location__carousel--active")) return;
       locationCard.setAttribute("data-animate", "slide-up");
       locationCard.setAttribute("data-anim-label", `location-card-${index + 1}`);
       animationObserver.observe(locationCard);

@@ -140,6 +140,8 @@ const config = {
         directions: "Get Directions",
         mapInteract: "Tap to interact with the map",
         closed: "Closed",
+        previous: "Previous location",
+        next: "Next location",
         days: {
           mon: "Monday",
           tue: "Tuesday",

@@ -1407,9 +1407,73 @@ body.gallery-lightbox-open {
 /* ---------------------------------------------------------------------------
    Location
    --------------------------------------------------------------------------- */
-.location__list {
+.location__wrap {
+  display: grid;
+  gap: 1rem;
+}
+
+.location__tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.15rem;
+  scrollbar-width: none;
+}
+
+.location__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.location__tab {
+  flex: 1 1 auto;
+  min-width: max-content;
+  min-height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-white);
+  color: var(--color-ink-soft);
+  padding: 0.55rem 1rem;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.location__tab[aria-current="true"] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.location__tab:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.location__carousel {
+  width: 100%;
+}
+
+.location__carousel--active .location__viewport {
+  overflow: hidden;
+}
+
+.location__track {
   display: grid;
   gap: 1.25rem;
+}
+
+.location__carousel--active .location__track {
+  display: flex;
+  gap: 0;
+  touch-action: pan-y pinch-zoom;
+}
+
+.location__carousel--active .location__card {
+  flex: 0 0 100%;
+  min-width: 0;
 }
 
 .location__card {
@@ -1431,6 +1495,38 @@ body.gallery-lightbox-open {
 .location__card-body {
   display: grid;
   gap: 0;
+}
+
+.location__nav {
+  display: none;
+}
+
+.location__nav[hidden] {
+  display: none !important;
+}
+
+.location__arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  color: var(--color-primary);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.location__arrow:hover {
+  background: var(--color-soft-bg);
+  transform: translateY(-1px);
+}
+
+.location__arrow svg {
+  width: 20px;
+  height: 20px;
 }
 
 .location__map {
@@ -1515,11 +1611,16 @@ body.gallery-lightbox-open {
   }
 }
 
-@media (min-width: 900px) {
-  .location__list {
-    gap: 1.5rem;
+@media (min-width: 768px) {
+  .location__wrap:has(.location__carousel--active) .location__nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
   }
+}
 
+@media (min-width: 900px) {
   .location__card-body {
     grid-template-columns: 1.15fr 1fr;
     min-height: 360px;
